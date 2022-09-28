@@ -1,7 +1,9 @@
-# napoli
+# P2MP clustering algorithm
 
 library("gplots")
 library("factoextra")
+
+rm(list=ls())
 
 
 set.seed(1234)
@@ -51,11 +53,6 @@ for (ii in c(1:nnodes)) {
 rownames(mm) = paste0("hl4_",c(1:dim(mm)[1]))
 
 
-heatmap.2(mm, scale = "row", col = bluered(100), 
-          trace = "none", density.info = "none",
-          #Colv = as.dendrogram(hclust(as.dist(1-cols.cor))),
-          Rowv = as.dendrogram(hclust(as.dist(rows.cor))))
-
 
 # con un bucle for a fuerza bruta
 
@@ -63,18 +60,20 @@ heatmap.2(mm, scale = "row", col = bluered(100),
 mm_bloques = ceiling(mm/25)
 mm2 = mm_bloques
 
-rows.cor2 <- 0.5+0.5*cor(t(mm), use = "pairwise.complete.obs", method = "pearson")
-
-#dist_mat <- dist(rows.cor2, method = 'pearson')
+rows.cor2 <- 0.5+0.5*cor(t(mm), use = "pairwise.complete.obs", 
+                         method = "pearson")
 hclust.row <- hclust(as.dist(rows.cor2))
-
+heatmap.2(mm, scale = "row", col = bluered(100), 
+          trace = "none", density.info = "none",
+          #Colv = as.dendrogram(hclust(as.dist(1-cols.cor))),
+          Rowv = as.dendrogram(hclust(as.dist(rows.cor2))))
 
 
 
 # Con mi algoritmo
 traff_hl4_aux = rowSums(mm_bloques)
 oorder = hclust.row$order 
-# oorder = sample(c(1:nrow(mm_bloques)),size=100,replace=F) #random asignment
+#oorder = sample(c(1:nrow(mm_bloques)), size=nrow(mm_bloques), replace=F) #random asignment
 clusters_final = list()
 kk=1; winner = oorder[kk]; cc_aux = mm2[winner,]
 while (kk<=nrow(mm)) {

@@ -23,11 +23,11 @@ profiles = rbind(v1,v2)
 
 plot(c(0:23), v1, type = "b", frame = FALSE, pch = 19,
      col = "red", xlab = "Hour", ylab = "Norm. Traffic", 
-     lty = 1, lwd = 1)
+     lty = 1, lwd = 1, xlim = c(0,25))
 lines(c(0:23), v2, pch = 18, col = "blue", type = "b", 
       lty = 2, lwd = 1)
 legend("topleft", legend = c("Business", "Residential"),
-       col = c("red", "blue"), lty = 1:2, cex = 0.8)
+       col = c("red", "blue"), lty = 1:2, cex = 0.68)
 
 
 # First experiment: 100 nodes
@@ -85,10 +85,10 @@ print(length(clusters_final))
 
 
 # Show Cluster number 4
-nclustershow = 4
+nclustershow = 2
 plot(c(0:23),rep(16,1,24),type = "b", frame = FALSE, pch = 19,
      col = "green", xlab = "Hour", ylab = "Norm. Traffic", 
-     lty = 1, lwd = 1, xlim = c(0,23), ylim = c(0,20))
+     lty = 1, lwd = 1, xlim = c(0,25), ylim = c(0,20))
 lines(c(0:23), colSums(clusters_final[[nclustershow]]),
       pch = 18, col = "red", type = "b", lty = 2, lwd = 1)
 for (cc in 1:nrow(clusters_final[[nclustershow]])) {

@@ -13,12 +13,8 @@ set.seed(1234)
 dev.off()
 
 
-# notas: 
-# probar anticlustering
-# probar geografia
 
-
-# clusters de gonzalo, faltan las proporciones que vienen en el paper
+# 4 clusters
 resident_fig_12 = c(0.548991935, 0.428015148, 0.280163077, 0.187894396, 
                     0.139545246, 0.129623817,0.189793138 ,0.338735226 ,
                     0.429277684 ,0.502130586 ,0.562305397 ,0.589313393 ,
@@ -82,9 +78,9 @@ legend("topleft", legend = c("Residential", "Office",
 
 # First experiment: 1000 nodes
 
-nnodes = 100
+nnodes = 1000
 
-traffic_peak = c(10,150); traffic_var = 0.8
+traffic_peak = c(10,150); traffic_var = 0.3
 
 mm = c()
 for (ii in c(1:nnodes)) {
@@ -263,6 +259,8 @@ print(which(rowSums(matrix(rep(clusters_final[[nclustershow]][cc,],
 
 
 
+
+
 # Second experiment: 1000 nodes, include distance 
 
 nnodes = 1000
@@ -282,7 +280,7 @@ mm2 = mm_bloques
 
 
 
-max_distance = 1000 #km2
+max_distance = 500 #km2
 location_mm = data.frame(x=runif(nnodes,min=0,max=max_distance),
                          y=runif(nnodes,min=0,max=max_distance))
 print("Distance Matrix ")

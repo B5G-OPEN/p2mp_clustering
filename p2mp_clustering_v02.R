@@ -435,6 +435,36 @@ cat("Savings = ",(length(clusters_final)-opt_no_clusters)/length(clusters_final)
 # EXPERIMENT 3: CAPEX COMPARISON AGAINST P2MP
 
 
+# P2MP Clustering Algorithm: Hierarchical clustering of nodes
+traff_hl4_aux = rowSums(mm_bloques)
+oorder = hclust.row$order 
+#oorder = sample(c(1:nrow(mm_bloques)), size=nrow(mm_bloques), replace=F) #random asignment
+clusters_final = list()
+kk=1; winner = oorder[kk]; cc_aux = mm2[winner,]
+while (kk<=nrow(mm)) {
+  cc_aux =c()
+  for (ii in c(kk:nrow(mm))) {
+    winner = oorder[ii]; 
+    cc_aux = rbind(cc_aux,mm2[winner,])
+    #print(cc_aux)
+    if (max(colSums(cc_aux))>16) {
+      cc_aux = cc_aux[1:(dim(cc_aux)[1]-1),]
+      kk =ii
+      clusters_final = append(clusters_final,list(cc_aux))
+      break
+    }
+    if (ii==nrow(mm)) {
+      kk=nrow(mm)+1
+      break
+    }
+  }
+}
+cat("P2MP Alg. Number of clusters = ", length(clusters_final), "\n") 
+
+opt_no_clusters = length(clusters_final)
+
+
+
 # How many 100G P2MP transceivers?
 
 tt400G = 0; tt100G = 0
@@ -444,8 +474,8 @@ for (ii in c(1:length(clusters_final))) {
   tt400G = tt400G + sum(as.numeric(apply(clusters_final[[ii]],1,max)>4))
   tt100G = tt100G + sum(as.numeric(apply(clusters_final[[ii]],1,max)<=4))
 }
-print(tt400G)
-print(tt100G)
+#print(tt400G)
+#print(tt100G)
 
 
 

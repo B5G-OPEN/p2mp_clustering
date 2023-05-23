@@ -14,7 +14,9 @@ dev.off()
 
 
 
-# 4 clusters
+
+# TRAFFIC PROFILES
+
 resident_fig_12 = c(0.548991935, 0.428015148, 0.280163077, 0.187894396, 
                     0.139545246, 0.129623817,0.189793138 ,0.338735226 ,
                     0.429277684 ,0.502130586 ,0.562305397 ,0.589313393 ,
@@ -74,12 +76,12 @@ legend("topleft", legend = c("Residential", "Office",
 
 
 
+# EXPERIMENT 1: ALG CA1, without GPS distance
 
-
-# First experiment: 1000 nodes
 
 nnodes = 1000
 
+# traffic peak and variability
 traffic_peak = c(10,150); traffic_var = 0.3
 
 mm = c()
@@ -167,12 +169,6 @@ hclust.row <- hclust(as.dist(dist_matrix))
 
 
 
-heatmap.2(mm, scale = "row", col = bluered(100), 
-          trace = "none", density.info = "none",
-          #Colv = as.dendrogram(hclust(as.dist(1-cols.cor))),
-          Rowv = as.dendrogram(hclust(as.dist(rows.cor2))))
-
-
 # P2MP Clustering Algorithm: Hierarchical clustering of nodes
 traff_hl4_aux = rowSums(mm_bloques)
 oorder = hclust.row$order 
@@ -236,8 +232,16 @@ print(length(clusters_final))
 
 
 
-# Show Cluster number 4
-nclustershow = 2
+# Show a cluster
+nclustershow = 1
+
+for (nclustershow in c(1:length(clusters_final))) {
+  if (!is.null(dim(clusters_final[[nclustershow]])[1])) {
+    break
+  }
+}
+
+
 plot(c(0:23),rep(16,1,24),type = "b", frame = FALSE, pch = 19,
      col = "green", xlab = "Hour", ylab = "Norm. Traffic", 
      lty = 1, lwd = 1, xlim = c(0,25), ylim = c(0,20))
@@ -259,9 +263,7 @@ print(which(rowSums(matrix(rep(clusters_final[[nclustershow]][cc,],
 
 
 
-
-
-# Second experiment: 1000 nodes, include distance 
+# EXPERIMENT 2: ALG CA2, including GPS distance
 
 nnodes = 1000
 
@@ -429,7 +431,25 @@ cat("Largest-First Fit Alg. Number of clusters = ",
 cat("Savings = ",(length(clusters_final)-opt_no_clusters)/length(clusters_final),"\n")
 
 
-# Experiment: How many P2P transceivers?
+
+# EXPERIMENT 3: CAPEX COMPARISON AGAINST P2MP
+
+
+# How many 100G P2MP transceivers?
+
+tt400G = 0; tt100G = 0
+
+for (ii in c(1:length(clusters_final))) {
+  print(sum(as.numeric(apply(clusters_final[[ii]],1,max)>=4)))
+  tt400G = tt400G + sum(as.numeric(apply(clusters_final[[ii]],1,max)>4))
+  tt100G = tt100G + sum(as.numeric(apply(clusters_final[[ii]],1,max)<=4))
+}
+print(tt400G)
+print(tt100G)
+
+
+
+# How many P2P transceivers?
 peak_traffic = NA*rep(1,nrow(mm))
 for (ii in c(1:nrow(mm))) {
   peak_traffic[ii] = max(mm[ii,])

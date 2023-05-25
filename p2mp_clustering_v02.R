@@ -16,8 +16,9 @@ dev.off()
 # input parameters: Traffic and Distance grid
 
 # traffic peak and variability
-traffic_peak = c(10,150); traffic_var = 0.3
+traffic_peak = c(50,100); traffic_var = 0.3
 max_distance = 500 #km2
+alpha = 1 # percentage for traffic, 1-alpha is distance
 
 cat("Input: Traffic Min and Max per node (Gb/s) ", traffic_peak, " variability = ", traffic_var, "\n")
 cat("Input: dist x dist grid (Km):  ", max_distance, "\n")
@@ -137,8 +138,8 @@ rows.cor2 = as.matrix(rows.cor2)
 geodistance = as.matrix(geodistance)
 
 
-alpha = 1 # percentage of importance to distance and traffic correlation
-dist_matrix = alpha * rows.cor2 + (1-alpha)*geodist2
+# alpha percentage of importance to distance and traffic correlation
+dist_matrix = rows.cor2
 hclust.row <- hclust(as.dist(dist_matrix))
 
 
@@ -166,6 +167,7 @@ while (kk<=nrow(mm)) {
   }
 }
 cat("1000 nodes: number of clusters CA1 = ", length(clusters_final), "trees\n")
+opt_no_clusters = length(clusters_final)
 
 # Largest-First Fit Algorithm
 traff_hl4_aux = rowSums(mm_bloques)
@@ -193,6 +195,13 @@ while (kk<=nrow(mm)) {
 }
 
 cat("1000 nodes: number of clusters LargestFit = ", length(clusters_final),"\n")
+
+
+
+cat("Largest-First Fit Alg. Number of clusters = ", 
+    length(clusters_final), "\n") 
+cat("Tree Savings (CA1) = ",(length(clusters_final)-opt_no_clusters)/length(clusters_final),"\n")
+
 
 
 # Show a cluster
@@ -227,46 +236,7 @@ legend("topleft", legend = c("Total aggregated", "Individual"),
 # EXPERIMENT 2: ALG CA2, including GPS distance
 cat("Algorithm CA2 (with distance)\n")
 
-nnodes = 1000
 
-mm = c()
-for (ii in c(1:nnodes)) {
-  peak = runif(1,min=0,max=100)
-  aux = abs(peak*profiles[sample(c(1:dim(profiles)[1]),size=1),] + 
-              0.3*peak*rnorm(dim(profiles)[2]))
-  mm = rbind(mm,aux)
-}
-
-rownames(mm) = paste0("hl4_",c(1:dim(mm)[1]))
-
-mm_bloques = ceiling(mm/25)
-mm2 = mm_bloques
-
-location_mm = data.frame(x=runif(nnodes,min=0,max=max_distance),
-                         y=runif(nnodes,min=0,max=max_distance))
-geodistance = dist(location_mm, location_mm, method="euclidean")
-geodistance = geodistance/max(geodistance)
-diag(geodistance)=1
-
-
-
-mm_bloques = ceiling(mm/25)
-mm2 = mm_bloques
-
-rows.cor2 <- 0.5+0.5*cor(t(mm), use = "pairwise.complete.obs", method = "pearson")
-
-geodist2 = matrix(0,nrow=nnodes,ncol=nnodes)
-for (ii in c(1:nnodes)) {
-  for (jj in c(1:nnodes)) {
-    geodist2[ii,jj] = geodistance[ii,jj]
-  }
-}
-
-rows.cor2 = as.matrix(rows.cor2)
-geodistance = as.matrix(geodistance)
-
-
-alpha = 1 # porcentaje importancia distancia
 dist_matrix = alpha *rows.cor2 + (1-alpha)*geodist2
 
 #object_name <- as.dist(object_name)
@@ -387,6 +357,7 @@ while (kk<=nrow(mm)) {
     }
   }
 }
+
 cat("Largest-First Fit Alg. Number of clusters = ", 
     length(clusters_final), "\n") 
 cat("Tree Savings = ",(length(clusters_final)-opt_no_clusters)/length(clusters_final),"\n")
@@ -394,6 +365,7 @@ cat("Tree Savings = ",(length(clusters_final)-opt_no_clusters)/length(clusters_f
 
 
 # EXPERIMENT 3: CAPEX COMPARISON AGAINST P2MP
+cat("Cost comparison\n")
 
 
 # P2MP Clustering Algorithm: Hierarchical clustering of nodes
@@ -434,9 +406,9 @@ for (ii in c(1:length(clusters_final))) {
   tt400G = tt400G + sum(as.numeric(apply(clusters_final[[ii]],1,max)>4))
   tt100G = tt100G + sum(as.numeric(apply(clusters_final[[ii]],1,max)<=4))
 }
-print(tt400G)
-print(tt100G)
 
+cat("No. of HBR 400G P2MP trans transceivers", tt400G, "\n") 
+cat("No. of HBR 100G P2MP trans transceivers", tt100G, "\n") 
 costp2mp = 12*tt400G + 6*tt100G
 cat("Cost (CU) P2MP solutions = ",costp2mp,"\n")
 
@@ -468,6 +440,7 @@ costp2p = 2*(12*No_400G_transceivers + 8*No_200G_transceivers +
                 5*No_100G_transceivers + 1*No_10G_transceivers)
 cat("Cost (CU) Fixed P2P solutions = ",costp2p,"\n")
 
+cat("CAPEX savings = ", costp2p/costp2mp-1 ,"\n")
 
 
 
